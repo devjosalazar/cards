@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cards
+  labels:
+    app: cards
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cards
+  template:
+    metadata: 
+      labels:
+        app: cards
+    spec: 
+      containers:
+        - name: cards
+          image: robindocker/microservice_cards:1.0.0
+          ports:
+          - containerPort: 9000
+          env:
+          - name: SPRING_PROFILES_ACTIVE
+            valueFrom:
+              configMapKeyRef: 
+                name: microservicios-configmap
+                key: spring_profiles_active
+          - name: SPRING_CONFIG_IMPORT
+            valueFrom:
+              configMapKeyRef: 
+                name: microservicios-configmap
+                key: spring_config_config_import  
+          - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            valueFrom:
+              configMapKeyRef: 
+                name: microservicios-configmap
+                key: eureka_client_serviceurl_defaultzone  
+
+                 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cards-service
+spec:
+  selector:
+    app: cards
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
